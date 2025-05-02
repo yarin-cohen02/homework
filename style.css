@@ -1,0 +1,75 @@
+body {
+    background-color: #f0ecec;
+    font-family: 'Arial', sans-serif;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+}
+
+.building-container {
+    width: fit-content;
+    margin: 0 auto;  
+}
+
+.floor {
+    display: flex;
+    flex-direction: row;
+}
+
+.names, .elevator, .buttons {
+    border: 1px solid #f0ecec;
+    height: 60px;
+    width: 120px;
+}
+
+.names {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    padding-right: 10px;
+    font-weight: bold;
+}
+
+.elevator {
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button {
+    padding: 8px 0;
+    width: 80px;
+    border-radius: 5px;
+}
+
+.call-button {
+    background-color: #5bcd88;
+    color: white;
+    border: none;
+}
+
+.waiting-button {
+    background-color: #f04c4c;
+    color: white;
+    border: none;
+}
+
+.arrived-button {
+    background-color: #f0ecec;
+    color: #5bcd88;
+    border: 2px solid #5bcd88;
+}
+
+.elevator-icon {
+    height: 40px;
+    position: relative;
+}
