@@ -36,7 +36,6 @@ const makeAvailable = (id) => {
 const applyAnimation = async (id, floor) => {
 
     // show timer
-    $(`#elv${id}-fl${floor}`).text("0 secs");
     $(`elv${id}-fl${floor}`).show();
 
     // make elevator red
@@ -77,40 +76,42 @@ const applyAnimation = async (id, floor) => {
 
 const executeQueue = async () => {
 
-    if (!queue.length) return;
+    for (let requestedFloor of queue) {
 
-    const requestedFloor = queue[0];
+      const availableElevator = findElevator(requestedFloor);
+      if (availableElevator === -1) return;
 
-    const availableElevator = findElevator(requestedFloor);
-    console.log(availableElevator);
-    
-    if (availableElevator === -1) return;
+      const elevatorRequest = activeRequests.find(a => a.floor === requestedFloor);
+      if (elevatorRequest) elevatorRequest.elevator = availableElevator;
 
-    queue.shift();
-    await makeBusy(availableElevator, requestedFloor);
+      queue.shift();
+      await makeBusy(availableElevator, requestedFloor);
+      await applyAnimation(availableElevator, requestedFloor);
+      await makeAvailable(availableElevator);
 
-    activeRequests.push({
-      floor: requestedFloor,
-      elevator: availableElevator,
-      startTime: Date.now()
-    });
+      activeRequests = activeRequests.filter(a => !(a.floor === requestedFloor && a.elevator === availableElevator));
 
-    await applyAnimation(availableElevator, requestedFloor);
-    await makeAvailable(availableElevator);
-
-    activeRequests = activeRequests.filter(a => !(a.floor === requestedFloor && a.elevator === availableElevator));
+    }
 
 }
 
 const handleClick = (floor) => {
+
     $(`#${floor}`).text("Waiting").addClass("waiting-button").removeClass("call-button");
+
+    activeRequests.push({
+      floor: floor,
+      elevator: -1,
+      startTime: Date.now()
+    });
+
     queue.push(floor);
+
 }
 
 const refreshTimers = () => {
   for (let activeReq of activeRequests) {
     $(`#elv${activeReq.elevator}-fl${activeReq.floor}`).text(`${Math.floor((Date.now() - activeReq.startTime) / 1000)} secs`);
-    console.log();
   }
 }
     
