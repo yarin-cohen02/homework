@@ -110,6 +110,7 @@
 
   const refreshTimers = () => {
     for (let activeReq of activeRequests) {
+      if (activeReq.elevator === -1) continue;
       $(`#elv${activeReq.elevator}-fl${activeReq.floor}`).text(`${Math.floor((Date.now() - activeReq.startTime) / 1000)} secs`);
     }
   }
