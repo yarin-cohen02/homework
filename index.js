@@ -7,10 +7,10 @@ const elevators = new Array(5).fill(null).map((value, i) => ({
     id: i,
     available: true,
     currentFloor: 0,
-    startTime: -1 // change startTime to be in each floor - maybe in executeQueue()?
 }));
 
 const queue = [];
+let activeRequests = [];
 
 
 // Functions:
@@ -26,7 +26,6 @@ const findElevator = (floor) => {
 const makeBusy = (id, floor) => {
     elevators[id].available = false;
     elevators[id].currentFloor = floor;
-    elevators[id].startTime = Date.now();
 }
 
 const makeAvailable = (id) => {
@@ -45,14 +44,14 @@ const applyAnimation = async (id, floor) => {
   
     // move elevator
     await new Promise(resolve => {
-      $(`#elv${id}`).animate({ bottom: floorHeight(floor) }, 1000, resolve);
+      $(`#elv${id}`).animate({ bottom: floorHeight(floor) }, 2000, resolve);
     });
 
     // play sound
     const dingSound = new Audio("elevator-ding.mp3");
     dingSound.play();
   
-    // change button to "Arrived"
+    // change button to Arrived
     $(`#${floor}`).text("Arrived")
       .addClass("arrived-button")
       .removeClass("waiting-button");
@@ -66,7 +65,7 @@ const applyAnimation = async (id, floor) => {
     // wait 2 secs
     await new Promise(resolve => setTimeout(resolve, 2000));
   
-    // change button back to "Call"
+    // change button back to Call
     $(`#${floor}`).text("Call")
       .addClass("call-button")
       .removeClass("arrived-button");
@@ -89,8 +88,17 @@ const executeQueue = async () => {
 
     queue.shift();
     await makeBusy(availableElevator, requestedFloor);
+
+    activeRequests.push({
+      floor: requestedFloor,
+      elevator: availableElevator,
+      startTime: Date.now()
+    });
+
     await applyAnimation(availableElevator, requestedFloor);
     await makeAvailable(availableElevator);
+
+    activeRequests = activeRequests.filter(a => !(a.floor === requestedFloor && a.elevator === availableElevator));
 
 }
 
@@ -100,13 +108,16 @@ const handleClick = (floor) => {
 }
 
 const refreshTimers = () => {
-  $(`#elv${id}-fl${floor}`).text(`${Math.floor((Date.now() - elevators[id].startTime) / 1000)} secs`);
+  for (let activeReq of activeRequests) {
+    $(`#elv${activeReq.elevator}-fl${activeReq.floor}`).text(`${Math.floor((Date.now() - activeReq.startTime) / 1000)} secs`);
+    console.log();
+  }
 }
     
 
 // On start:
 
 setInterval(() => executeQueue(), 1000); 
-setInterval(() => refreshTimers(), 1000); 
+setInterval(() => refreshTimers(), 500); 
 
 $("button").click((e) => {handleClick(e.target.id)});
