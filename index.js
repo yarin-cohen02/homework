@@ -3,6 +3,7 @@
   const elevators = new Array(5).fill(null).map((value, i) => ({
       id: i,
       available: true,
+      outOfOrder: false,
       currentFloor: 0,
   }));
 
@@ -16,7 +17,7 @@
 
   const findElevator = (floor) => {
 
-    const bestElevator = elevators.filter((a) => a.available)
+    const bestElevator = elevators.filter((a) => a.available && !(a.outOfOrder))
       .sort((a, b) => Math.abs(a.currentFloor - floor) - Math.abs(b.currentFloor - floor))[0];
   
     return bestElevator ? bestElevator.id : -1;
@@ -124,4 +125,14 @@
   $("button").click((e) => {
     if (e.target.disabled) return;
     return handleClick(e.target.id);
+  });
+
+  $("svg").click((e) => {
+
+    const elevatorId = e.currentTarget.id.slice(-1);
+  
+    elevators[elevatorId].outOfOrder = !elevators[elevatorId].outOfOrder;
+  
+    $(`#${e.currentTarget.id}`).css("color", elevators[elevatorId].outOfOrder ? "gray" : "black");
+    
   });
